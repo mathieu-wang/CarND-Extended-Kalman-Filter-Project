@@ -64,6 +64,10 @@ public:
    */
   void UpdateEKF(const Eigen::VectorXd &z);
 
+
 };
+
+std::ostream& operator<<(std::ostream &strm, const KalmanFilter &kf);
+
 
 #endif /* KALMAN_FILTER_H_ */

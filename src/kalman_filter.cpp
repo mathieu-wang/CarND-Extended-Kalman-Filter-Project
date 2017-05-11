@@ -17,18 +17,35 @@ void KalmanFilter::Init(VectorXd &x_in, MatrixXd &P_in, MatrixXd &F_in,
   Q_ = Q_in;
 }
 
+std::ostream& operator<<(std::ostream &strm, const KalmanFilter &kf) {
+	return strm << "x: " << kf.x_ << std::endl
+		<< "P: " << kf.P_ << std::endl
+		<< "F: " << kf.F_ << std::endl
+		<< "Q: " << kf.Q_ << std::endl
+		<< "H: " << kf.H_ << std::endl
+		<< "R: " << kf.R_ << std::endl;
+}
+
 void KalmanFilter::Predict() {
-  /**
-  TODO:
-    * predict the state
-  */
+	x_ = F_ * x_;
+	MatrixXd Ft = F_.transpose();
+	P_ = F_ * P_ * Ft + Q_;
 }
 
 void KalmanFilter::Update(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Kalman Filter equations
-  */
+	VectorXd z_pred = H_ * x_;
+	VectorXd y = z - z_pred;
+	MatrixXd Ht = H_.transpose();
+	MatrixXd S = H_ * P_ * Ht + R_;
+	MatrixXd Si = S.inverse();
+	MatrixXd PHt = P_ * Ht;
+	MatrixXd K = PHt * Si;
+
+	//new estimate
+	x_ = x_ + (K * y);
+	long x_size = x_.size();
+	MatrixXd I = MatrixXd::Identity(x_size, x_size);
+	P_ = (I - K * H_) * P_;
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
